@@ -60,25 +60,8 @@ class Flovidy_OptionsManager {
         return add_option($prefixedOptionName, $value);
     }
     public function updateOption($optionName, $value) {
-        if ($optionName == 'license'){
-            $prefixedOptionName = $this->prefix($optionName);
-            $retVal = get_option($prefixedOptionName);
-            if (!$retVal){
-                $ch = curl_init("https://flovidy.com/check_license/".$value."/");
-                curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-                curl_setopt($ch, CURLOPT_TIMEOUT,10);
-                $output = curl_exec($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                if($httpcode == 200){
-                    return update_option($prefixedOptionName, $value);
-                }
-            }
-        } else {
-            $prefixedOptionName = $this->prefix($optionName);
-            return update_option($prefixedOptionName, $value);
-        }
+        $prefixedOptionName = $this->prefix($optionName);
+        return update_option($prefixedOptionName, $value);
     }
 
     public function createSettingsMenu() {
@@ -144,6 +127,7 @@ class Flovidy_OptionsManager {
             'ca_ref' => "<a target='_blank' href='https://associates.amazon.ca/'>Apply for a code here<a>",
             'br_ref' => "<a target='_blank' href='https://associados.amazon.com.br/'>Apply for a code here<a>",
             'cn_ref' => "<a target='_blank' href='https://associates.amazon.cn/'>Apply for a code here<a>",
+            'au_ref' => "<a target='_blank' href='https://associates.amazon.con.au/'>Apply for a code here<a>",
             'license' => "",
             )
             ?>
@@ -195,14 +179,7 @@ class Flovidy_OptionsManager {
                       value="<?php echo esc_attr($savedOptionValue) ?>" size="50"/></p>
                      
             <?php
-            if ($aOptionKey == "license" and $savedOptionValue == ""){ ?>
-                <p style="color:red"><strong> Your plugin has not been activated yet. Please fill in your license key to get it activated </strong></p>
-            <?php 
-            } else if ($aOptionKey == "license"){ ?>
-                <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-                <p style="color:green"><i class="fa fa-check" aria-hidden="true"></i><strong>Activated</strong></p>
-            <?php
-            }
+            
     }
     protected function getOptionValueI18nString($optionValue) {
         switch ($optionValue) {

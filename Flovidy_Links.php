@@ -14,14 +14,12 @@ class Flovidy_links {
         $this->urls = $urls;
         $this->link = $link;
         $this->newRef = $newRef;
-        $i = 0;
         $remove[] = "'";
         $remove[] = '"';
         $remove[] = '%22';
         $remove[] = '%20';
         foreach ($urls as $url) {
             $this->urls[$i] = str_replace($remove, "", $url);
-            $i++;
         }
         $this->stringifiedUrls = "'". implode( "','", $urls) ."'";
         global $wpdb;
@@ -77,11 +75,14 @@ class Flovidy_links {
                 array_push($records, $new_item);
             } else {
                 if(strpos($oldUrl, "amzn.to") !== false){
-                    $oldUrl = $this->get_referral_url($oldUrl);
+                    $oldUrl = $this->get_redirect_url($oldUrl);
                 }
-                $url = $this->create_new_url($oldUrl);   
+                // rebuild link and remove all extra ids and tokens
+                $newUrl = $this->rebuild_url($oldUrl);
+                // change domain and check if url exists
+                $url = $this->create_new_url($newUrl);
+                // create a new record if not exists, else just update record with new url
                 global $wpdb;
-
                 if(!$exists){
                     $wpdb->insert( 
                         $wpdb->prefix .'ai_link', 
@@ -119,19 +120,43 @@ class Flovidy_links {
         return False;
     }
 
-    function get_referral_url($oldUrl){
+    function get_redirect_url($oldUrl){
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $oldUrl);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_NOBODY, true); 
         curl_exec($ch);
-        return curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        return $url;
+    }
+
+    function rebuild_url($oldUrl) {
+        $pieces = explode('/', $oldUrl);
+        $index = 0;
+        $code = '';
+        foreach ($pieces as $piece) {
+            if (strtolower($piece) == 'dp') {
+                $code = $pieces[$index + 1];
+                break;
+            }
+            $index++;
+        }
+        $parts = parse_url($oldUrl);
+        parse_str($parts['query'], $query);
+        $newUrl = 'https://www.amazon.com/dp/'.$code.'/';
+        if(strpos($oldUrl, 'keywords')!== false){
+            $newUrl .= '?keywords='.$query['keywords'];
+            $newUrl = strtr($newUrl,array(" "  => "+"));
+        }
+        return $newUrl;
     }
 
     function create_new_url($oldUrl){
         $url = strtr($oldUrl,array("amazon.com"  => "amazon.".$this->country));
         $httpcode = 405;
+        $counter = 0;
         while ($httpcode == 405){
+            $counter++;
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
@@ -140,12 +165,12 @@ class Flovidy_links {
             $output = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            if ($httpcode == 500){
+            if ($httpcode == 500 || $counter == 3){
                 wp_die();
             }
         }
         // if page does not exist in new store
-        if(strpos($output, '<title>404')!== false){
+        if($httpcode == 404 || $httpcode == 504){
             if(strpos($url, 'keywords')!== false){
                 $parts = parse_url($url);
                 parse_str($parts['query'], $query);
@@ -159,10 +184,6 @@ class Flovidy_links {
                 }
             }
         }
-
         return $url;
     }
-
-
-
 } 

@@ -57,6 +57,8 @@ class Flovidy_Location {
             $country = 'com.br';
         } else if ($country == 'CN'){
             $country = 'cn';
+        } else if ($country == 'AU'){
+            $country = 'com.au';
         } else {
         	$country = 'us';
         }
@@ -64,15 +66,18 @@ class Flovidy_Location {
     }
 
     function get_referral_tag(){
-    	if($this->country == 'co.uk'){
+    	if ($this->country == 'co.uk'){
             $this->link = 'uk_link';
             $this->newRef = trim(get_option("Flovidy_Plugin_uk_ref"));
-        } else if ($country == 'co.jp'){
+        } elseif ($this->country == 'co.jp'){
             $this->link = 'jp_link';
             $this->newRef = trim(get_option("Flovidy_Plugin_jp_ref"));
-        } else if ($country == 'com.br'){
+        } elseif ($this->country == 'com.br'){
             $this->link = 'br_link';
             $this->newRef = trim(get_option("Flovidy_Plugin_br_ref"));
+        } elseif ($this->country == 'com.au'){
+            $this->link = 'au_link';
+            $this->newRef = trim(get_option("Flovidy_Plugin_au_ref"));
         } else {
             $this->link = $this->country.'_link';
             $this->newRef = trim(get_option("Flovidy_Plugin_" .$this->country. '_ref'));

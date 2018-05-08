@@ -58,6 +58,7 @@ class Flovidy_LifeCycle extends Flovidy_InstallIndicator {
           ca_link TEXT(1400),
           br_link TEXT(1400),
           cn_link TEXT(1400),
+          au_link TEXT(1400),
           PRIMARY KEY  (id)
         ) $charset_collate;";
         dbDelta( $sql );
