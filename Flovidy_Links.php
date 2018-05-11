@@ -37,13 +37,9 @@ class Flovidy_links {
                 } else {
                     $finalUrl = 'https://www.amazon.com/gp/aws/cart/add.html?AssociateTag='.$this->newRef;
                 }
-
-                $parts = explode(';', $url);
-                foreach($parts as $part){
-                    preg_match("/B0(?:(?!\/).)*/", $part, $number);
-                    $finalUrl = $finalUrl . '&ASIN.'.$i.'='.$number[0].'&Quantity.'.$i.'=1';
-                    $i++;
-                }
+                preg_match("/B0(?:(?!\/).)*/", $url, $number);
+                $finalUrl = $finalUrl . '&ASIN.'.$i.'='.$number[0].'&Quantity.'.$i.'=1';
+                $i++;
                 $item = array(us_link => $url, new_link=>$finalUrl);
                 array_push($rec, $item);
                 unset($temp_urls[$j]);
@@ -131,15 +127,11 @@ class Flovidy_links {
     }
 
     function rebuild_url($oldUrl) {
-        $pieces = explode('/', $oldUrl);
         $index = 0;
         $code = '';
-        foreach ($pieces as $piece) {
-            if (strtolower($piece) == 'dp') {
-                $code = $pieces[$index + 1];
-                break;
-            }
-            $index++;
+        preg_match("/B0(?:(?!\/).)*/", $url, $number);
+        if (count($number) > 0) {
+            $code = $number[0];
         }
         $parts = parse_url($oldUrl);
         parse_str($parts['query'], $query);
@@ -157,14 +149,13 @@ class Flovidy_links {
         $counter = 0;
         while ($httpcode == 405){
             $counter++;
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_HEADER, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-            curl_setopt($ch, CURLOPT_TIMEOUT,10);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5');
-            $output = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = wp_remote_get($oldUrl,
+                array(
+                    'timeout'    => 120,
+                    'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
+                )
+            );
+            $httpcode = wp_remote_retrieve_response_code($response);
             if ($httpcode == 500 || $counter == 3){
                 wp_die();
             }
@@ -176,12 +167,11 @@ class Flovidy_links {
                 parse_str($parts['query'], $query);
                 $url = 'https://www.amazon.'.$this->country.'/s/?keywords='.$query['keywords'];
             } else {
-                $pieces = explode('/', $url);
-                if(strtolower($pieces[3]) == 'dp'){
-                    $url = 'https://www.amazon.'.$this->country.'/s/?keywords='.strtr($pieces[4], array("-"  => "+"));
-                } else {
-                    $url = 'https://www.amazon.'.$this->country.'/s/?keywords='.strtr($pieces[3], array("-"  => "+"));
+                preg_match("/B0(?:(?!\/).)*/", $url, $number);
+                if (count($number) > 0) {
+                    $code = $number[0];
                 }
+                $url = 'https://www.amazon.'.$this->country.'/s/?keywords='.strtr($code, array("-"  => "+"));
             }
         }
         return $url;
