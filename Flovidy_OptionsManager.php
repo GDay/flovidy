@@ -129,6 +129,7 @@ class Flovidy_OptionsManager {
             'cn_ref' => "<a target='_blank' href='https://associates.amazon.cn/'>Apply for a code here<a>",
             'au_ref' => "<a target='_blank' href='https://associates.amazon.con.au/'>Apply for a code here<a>",
             'license' => "",
+            'bitly_access_token' => "Only required when using amzn.to links. Signup at <a target='_blank' href='https://bitly.com/a/sign_up'>bitly.com</a> (do NOT use social login) and then get your key by clicking <a target='_blank' href='https://app.bitly.com/bitlinks/?actions=accountMain&actions=profile&actions=accessToken'>this link</a>. Enter your password and hit 'GENERATE TOKEN'. Paste the token here.",
             )
             ?>
 

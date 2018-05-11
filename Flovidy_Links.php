@@ -72,6 +72,9 @@ class Flovidy_links {
             } else {
                 if(strpos($oldUrl, "amzn.to") !== false){
                     $oldUrl = $this->get_redirect_url($oldUrl);
+                    if ($oldUrl == false) {
+                        continue;
+                    }
                 }
                 // rebuild link and remove all extra ids and tokens
                 $newUrl = $this->rebuild_url($oldUrl);
@@ -117,19 +120,19 @@ class Flovidy_links {
     }
 
     function get_redirect_url($oldUrl){
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $oldUrl);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true); 
-        curl_exec($ch);
-        $url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-        return $url;
+        $url = 'https://api-ssl.bitly.com/v3/expand?access_token='.trim(get_option("Flovidy_Plugin_bitly_access_token")).'&shortUrl='.urlencode($oldUrl);
+        $response =  wp_remote_retrieve_body(wp_remote_get($url));
+        $response_json = json_decode(trim($response), true);
+        if ($response_json['status_txt'] == 'OK') {
+            return $response_json['data']['expand'][0]['long_url'];
+        }
+        return false;
     }
 
     function rebuild_url($oldUrl) {
         $index = 0;
         $code = '';
-        preg_match("/B0(?:(?!\/).)*/", $url, $number);
+        preg_match("/B0(?:(?!\/).)*/", $oldUrl, $number);
         if (count($number) > 0) {
             $code = $number[0];
         }
@@ -145,20 +148,17 @@ class Flovidy_links {
 
     function create_new_url($oldUrl){
         $url = strtr($oldUrl,array("amazon.com"  => "amazon.".$this->country));
-        $httpcode = 405;
         $counter = 0;
-        while ($httpcode == 405){
-            $counter++;
-            $response = wp_remote_get($oldUrl,
-                array(
-                    'timeout'    => 120,
-                    'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
-                )
-            );
-            $httpcode = wp_remote_retrieve_response_code($response);
-            if ($httpcode == 500 || $counter == 3){
-                wp_die();
-            }
+        $response = wp_remote_get($url,
+            array(
+                'timeout'    => 20,
+                'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
+            )
+        );
+        $httpcode = wp_remote_retrieve_response_code($response);
+        // 500 generally means we are blocked or Amazon is having interal issues. No point in doing more requests.
+        if ($httpcode == 500){
+            wp_die();
         }
         // if page does not exist in new store
         if($httpcode == 404 || $httpcode == 504){

@@ -20,7 +20,8 @@ class Flovidy_Plugin extends Flovidy_LifeCycle {
             'ca_ref' => array(__('Canada referral code', 'flovidy')),
             'br_ref' => array(__('Brazil referral code', 'flovidy')),
             'cn_ref' => array(__('China referral code', 'flovidy')),
-            'au_ref' => array(__('Australia referral code', 'flovidy'))
+            'au_ref' => array(__('Australia referral code', 'flovidy')),
+            'bitly_access_token' => array(__('Bitly API key', 'flovidy')),
         );
     }
 
