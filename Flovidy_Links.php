@@ -138,9 +138,17 @@ class Flovidy_links {
         }
         $parts = parse_url($oldUrl);
         parse_str($parts['query'], $query);
-        $newUrl = 'https://www.amazon.com/dp/'.$code.'/';
+        if($code == ''){
+			$newUrl = 'https://www.amazon.com/s/';
+		} else {
+			$newUrl = 'https://www.amazon.com/dp/'.$code.'/';
+		}
         if(strpos($oldUrl, 'keywords')!== false){
-            $newUrl .= '?keywords='.$query['keywords'];
+			if(strpos($oldUrl, 'field-keywords')!== false){
+				$newUrl .= '?keywords='.$query['field-keywords'];
+			} else {
+				$newUrl .= '?keywords='.$query['keywords'];
+			}
             $newUrl = strtr($newUrl,array(" "  => "+"));
         }
         return $newUrl;
@@ -148,6 +156,9 @@ class Flovidy_links {
 
     function create_new_url($oldUrl){
         $url = strtr($oldUrl,array("amazon.com"  => "amazon.".$this->country));
+        if (strpos($url, '/s/?keywords=')){
+			return $url; 
+		}
         $counter = 0;
         $response = wp_remote_get($url,
             array(

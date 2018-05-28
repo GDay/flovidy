@@ -1,12 +1,12 @@
 <?php
 /*
-   Plugin Name: Flovidy
+   Plugin Name: Flovidy - Localize Amazon Affiliate Links
    Plugin URI: https://flovidy.com
-   Version: 0.3
+   Version: 0.5
    Author: <a href="https://flovidy.com">flovidy.com</a>
    Description: Localize amazon affiliate links to optimize affiliate commision income
    Text Domain: flovidy
-   License: BSD 3-Clause
+   License: GPLv2 or later
   */
 
 $Flovidy_minimalRequiredPhpVersion = '5.0';
