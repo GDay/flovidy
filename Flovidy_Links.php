@@ -151,6 +151,10 @@ class Flovidy_links {
 			}
             $newUrl = strtr($newUrl,array(" "  => "+"));
         }
+	if(strpos($oldUrl, 'k')!== false){
+            $newUrl .= '?keywords='.$query['k'];
+            $newUrl = strtr($newUrl,array(" "  => "+"));
+        }
         return $newUrl;
     }
 
