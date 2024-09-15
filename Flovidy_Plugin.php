@@ -87,12 +87,12 @@ class Flovidy_Plugin extends Flovidy_LifeCycle {
                                 $finalUrl = $finalUrl . '&ASIN.'.$i.'='.$number[0].'&Quantity.'.$i.'=1';
                                 $i++;
                             }
-                            $item = array(us_link => $url, new_link=>$finalUrl);                                
+                            $item = array('us_link' => $url, 'new_link'=>$finalUrl);                                
                         } else {
-                            $item = array(us_link => $url, new_link=>add_tag($url, $orRef, $newRef));
+                            $item = array('us_link' => $url, 'new_link'=>add_tag($url, $orRef, $newRef));
                         }
                     } else {
-                        $item = array(us_link => $url, new_link=>$url);
+                        $item = array('us_link' => $url, 'new_link'=>$url);
                     }
                     array_push($records, $item);
                 }
@@ -103,7 +103,7 @@ class Flovidy_Plugin extends Flovidy_LifeCycle {
             $records = $links->create_shopping_chart();
             $newRecords = $links->create_new_links();
             foreach ($newRecords as $record){
-                $item = array(us_link => $record['us_link'], new_link=>add_tag($record[$link], $orRef, $newRef));
+                $item = array('us_link' => $record['us_link'], 'new_link'=>add_tag($record[$link], $orRef, $newRef));
                 array_push($records, $item);
             }
             print_r(json_encode($records));
