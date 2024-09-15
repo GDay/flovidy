@@ -31,7 +31,7 @@ class Flovidy_Location {
     function get_country() {
         $file = plugins_url('/GeoIP.dat', __FILE__);
         include("geoip.inc");
-        $gi = geoip_open(__DIR__.'/GeoIP.dat', GEOIP_MMAP_CACHE);
+        $gi = geoip_open(__DIR__.'/GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $this->ipaddress);
         if ($country == false){
             $country = 'us';
