@@ -1,3 +1,5 @@
+This plugin is now in read-only mode. There will be no future updates and it might stop working at any time.
+
 === Flovidy ===
 Contributors: <a href="https://flovidy.com">flovidy.com</a>
 Tags:
